@@ -1,8 +1,17 @@
-from tqdm import tqdm
+from __future__ import print_function
+from analysis import *
 import time
-# create 1000*8192*4*3 numpy array randomly
-import numpy as np
 import os
-
-random_array = np.random.rand(1000, 8192, 4, 3)
-np.savez_compressed("test_compressed", random_array = random_array)
+start_time = time.time()
+save_dir = r"Result"
+# Analysis
+sim = simulation_state(save_dir)
+sim.compute_PE()
+sim.compute_K_virial()
+sim.compute_H2O_structure()
+sim.compute_E_virial()
+print (f"E_virial_avg: {sim.E_virial_avg}")
+#save the result as result.npz
+np.savez(os.path.join(save_dir, "result.npz"), geometry=sim.geometry, E_virial_avg= np.array(sim.E_virial_avg))
+end_time = time.time()
+print (end_time - start_time)

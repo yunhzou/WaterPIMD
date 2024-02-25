@@ -9,7 +9,8 @@ start_time = time.time()
 unique_id = uuid.uuid4()
 #### Main code 
 params = initialize_parameters()
-params = params | {'uuid': unique_id}
+params = {**params, 'uuid': unique_id}
+params_to_json(params)
 simulation = setup_system(params) 
 setup_reporters(simulation, params)
 minimize_and_equilibrate(simulation, params)
@@ -26,8 +27,9 @@ sim = simulation_state(save_dir)
 sim.compute_PE()
 sim.compute_K_virial()
 sim.compute_H2O_structure()
-sim.compute_E_virial
+sim.compute_E_virial()
+print (f"E_virial: {sim.E_virial_avg}")
 #save the result as result.npz
-np.savez(os.path.join(save_dir, "result.npz"), geometry=sim.geometry, E_virial= np.array(sim.E_virial))
+np.savez(os.path.join(save_dir, "result.npz"), geometry=sim.geometry, E_virial_average= np.array(sim.E_virial_avg))
 end_time = time.time()
 print (end_time - start_time)
