@@ -40,7 +40,7 @@ class simulation_state():
         K_virial_all_steps = -np.einsum('ijkl,ijkl->i', self.POS, self.FORCES)
         self.K_virial = K_virial_all_steps
 
-    def compute_H2O_structure(self):
+    def compute_H2O_structure_slow(self):
         for i in range(self.simulation_steps):
             for beadi in range(self.P):
                 posi = self.POS[i, beadi]
@@ -50,7 +50,7 @@ class simulation_state():
                 bead_angle=np.arccos(np.dot(posi[0]-posi[2],posi[0]-posi[1])/bead_rOH1/bead_rOH2)*180./np.pi
                 self.POS[i, beadi] = np.array([bead_rOH1*10., bead_rOH2*10., bead_rHH*10., bead_angle])
 
-    def compute_H2O_structure_corrected_final(self):
+    def compute_H2O_structure(self):
         POS = self.POS 
         rOH2 = np.linalg.norm(POS[:, :, 0] - POS[:, :, 1], axis=-1)
         rOH1 = np.linalg.norm(POS[:, :, 0] - POS[:, :, 2], axis=-1)

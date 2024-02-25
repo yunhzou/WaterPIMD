@@ -6,10 +6,20 @@ from tqdm import tqdm
 import numpy as np
 import mdtraj
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import json
 
 hbar = 1.054571817e-34*6.0221367e23/(1000*1e-12)
 
-def initialize_parameters():
+def initialize_parameters(steps=1000,
+                          equilibration_steps=100,
+                          skip_steps=1,
+                          gamma0=(1.0 / 0.17) / unit.picoseconds,
+                          dt=0.12 * unit.femtoseconds,
+                          temperature=50.0,
+                          P=8192,
+                          pdb_file="qtip4p.pdb",
+                          forcefield_file='qtip4pf.xml',
+                          platform_name='Reference'):
     """
     Initializes and returns simulation parameters.
 
@@ -29,16 +39,16 @@ def initialize_parameters():
               - tau (Quantity): Imaginary time step tau = beta/P.
     """
     params = {
-        'steps': 1000,
-        'equilibration_steps': 100,
-        'skip_steps': 1,
-        'gamma0': (1.0 / 0.17) / unit.picoseconds,
-        'dt': 0.12 * unit.femtoseconds,
-        'temperature': 50.0,  # in Kelvin
-        'P': 8192,
-        'pdb_file': "qtip4p.pdb",
-        'forcefield_file': 'qtip4pf.xml',
-        'platform_name': 'Reference',  # or 'CPU' for faster, multi-core computations
+        'steps': steps,
+        'equilibration_steps': equilibration_steps,
+        'skip_steps': skip_steps,
+        'gamma0': gamma0,
+        'dt': dt,
+        'temperature': temperature,  # in Kelvin
+        'P': P,
+        'pdb_file': pdb_file,
+        'forcefield_file': forcefield_file,
+        'platform_name': platform_name,  # or 'CPU' for faster, multi-core computations
     }
     params['beta'] = (1000.0 / (params['temperature'] * 8.31415))
     params['tau'] = params['beta'] / params['P']
@@ -125,8 +135,6 @@ def step_simulation(simulation, params):
         FORCES[step] = forces
     return PE, POS, FORCES
 
-
-
 def process_bead(simulation, beadi):
     current_state = simulation.integrator.getState(beadi, getPositions=True, getEnergy=True, getForces=True)
     pe_i = current_state.getPotentialEnergy() / unit.kilojoules_per_mole
@@ -134,3 +142,12 @@ def process_bead(simulation, beadi):
     forces_i = np.array(current_state.getForces() / (unit.kilojoules_per_mole / unit.nanometer))
     return pe_i, posi, forces_i
 
+def params_to_json(params,dir="Result"):
+    """
+    Saves the simulation parameters to a JSON file.
+
+    Parameters:
+        params (dict): Dictionary of simulation parameters.
+    """
+    with open(dir+"/params.json", 'w') as f:
+        json.dump(params, f, indent=4)
