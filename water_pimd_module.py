@@ -4,7 +4,7 @@ import openmm as mm
 import sys
 from tqdm import tqdm
 import numpy as np
-import mdtraj
+#import mdtraj
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import uuid
@@ -43,16 +43,16 @@ def initialize_parameters(steps=1000,
         'steps': steps,
         'equilibration_steps': equilibration_steps,
         'skip_steps': skip_steps,
-        'gamma0': gamma0,
-        'dt': dt,
-        'temperature': temperature,  # in Kelvin
+        'gamma0': gamma0, # optimize
+        'dt': dt, # optimize
+        'temperature': temperature,  # in Kelvin # optimize
         'P': P,
         'pdb_file': pdb_file,
         'forcefield_file': forcefield_file,
         'platform_name': platform_name,  # or 'CPU' for faster, multi-core computations
     }
-    params['beta'] = (1000.0 / (params['temperature'] * 8.31415))
-    params['tau'] = params['beta'] / params['P']
+    params['beta'] = (1000.0 / (params['temperature'] * 8.31415)) 
+    params['tau'] = params['beta'] / params['P'] # tau is iverse of temperature
     return params
 
 
@@ -93,7 +93,7 @@ def setup_reporters(simulation, params):
     simulation.reporters.append(app.StateDataReporter(sys.stdout, params['steps'] / 10, step=True, 
         potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, progress=True, remainingTime=True, 
         speed=True, totalSteps=params['steps'], separator='\t'))
-    simulation.reporters.append(mdtraj.reporters.HDF5Reporter('water.h5', params['skip_steps']))
+    #simulation.reporters.append(mdtraj.reporters.HDF5Reporter('water.h5', params['skip_steps']))
 
 def minimize_and_equilibrate(simulation, params):
     """
