@@ -17,8 +17,18 @@ parser.add_argument('--skip_steps', type=int, default=1, help='Number of steps t
 parser.add_argument('--gamma0', type=float, default=(1.0 / 0.17) , help='Friction coefficient in 1/ps.')
 parser.add_argument('--dt', type=float, default=0.12, help='Time step for the simulation in femtoseconds.')
 parser.add_argument('--temperature', type=float, default=50.0, help='Simulation temperature in Kelvin.')
-parser.add_argument('--P', type=int, default=8192, help='Number of beads in the Path Integral formulation.')
+parser.add_argument('--P', type=int, default=100, help='Number of beads in the Path Integral formulation.')
 args = parser.parse_args()
+
+#P = 8192
+
+
+
+error_tolerance = 1
+# run the simulation, save the results, and analyze the results, 
+# if the error is greater than 1% of the mean value, estimate the additional steps required to reduce the error to 1% of the mean value
+# and run the simulation again
+# repeat the process until the error is less than 1% of the mean value
 
 simulation_run = simulation_run_time(uuid=unique_id,
                                      steps=args.steps, 
@@ -28,12 +38,30 @@ simulation_run = simulation_run_time(uuid=unique_id,
                                      dt=args.dt* unit.femtoseconds, 
                                      temperature=args.temperature, 
                                      P=args.P)
-
 simulation_run.run()
-simulation_run.save()
-sim_analysis = simulation_state()
+sim_analysis = simulation_state(params = simulation_run.metadata,
+                                PE = simulation_run.PE,
+                                POS = simulation_run.POS,
+                                FORCES = simulation_run.FORCES,
+                                result_dir = simulation_run.save_dir)
 sim_analysis.analyze()
+error_percentage = sim_analysis.error_percent
 
+while error_percentage > error_tolerance:
+    additional_steps = sim_analysis.estimate_additional_steps()
+    print(f"Additional steps required: {additional_steps}")
+    simulation_run.continue_simulations(additional_steps = additional_steps)
+    simulation_run.save()
+    sim_analysis = simulation_state(params = simulation_run.metadata,
+                                    PE = simulation_run.PE,
+                                    POS = simulation_run.POS,
+                                    FORCES = simulation_run.FORCES,
+                                    result_dir = simulation_run.save_dir)
+    sim_analysis.analyze()
+    error_percentage = sim_analysis.error_percent
+
+print(f"Total steps taken: {simulation_run.steps}")
+sim_analysis.save()    
 
 end_time = time.time()
-print (end_time - start_time)
+print(f"Total time taken: {end_time - start_time} seconds")

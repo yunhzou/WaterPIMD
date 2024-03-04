@@ -58,6 +58,7 @@ class simulation_run_time():
         self.beta = (1000.0 / (self.temperature * 8.31415))
         self.tau = self.beta / self.P
         self.uuid = uuid
+        self._get_metadata()
         
     
     def run(self):
@@ -71,7 +72,8 @@ class simulation_run_time():
 
     def continue_simulations(self, additional_steps):
         self.steps = self.steps + additional_steps
-        PE, POS, FORCES = self._step_simulation(self.simulation)
+        self._get_metadata()
+        PE, POS, FORCES = self._step_simulation(steps = additional_steps)
         self.PE = np.concatenate((self.PE, PE), axis=0)
         self.POS = np.concatenate((self.POS, POS), axis=0)
         self.FORCES = np.concatenate((self.FORCES, FORCES), axis=0)
@@ -79,6 +81,24 @@ class simulation_run_time():
     def save(self):
         self._save_metadata()
         self._save_results()
+
+    def _get_metadata(self):
+        self.metadata = {
+            "uuid": self.uuid,
+            "steps": self.steps,
+            "equilibration_steps": self.equilibration_steps,
+            "skip_steps": self.skip_steps,
+            "gamma0": self.gamma0,
+            "dt": self.dt,
+            "temperature": self.temperature,
+            "P": self.P,
+            "pdb_file": self.pdb_file,
+            "forcefield_file": self.forcefield_file,
+            "platform_name": self.platform_name,
+            "beta": self.beta,
+            "tau": self.tau
+        }
+
 
     def _setup_system(self):
         """
@@ -136,7 +156,7 @@ class simulation_run_time():
             pos = np.zeros((self.P, 4, 3))
             forces = np.zeros((self.P, 4, 3))
             for beadi in range(self.P):
-                result = self._process_bead(self.simulation, beadi)
+                result = self._process_bead(beadi)
                 pe_i, posi, forces_i = result
                 # posi, force_i shape is (4,3)
                 pe[beadi] = pe_i
@@ -158,22 +178,7 @@ class simulation_run_time():
         """
         Saves the metadata of the simulation to a JSON file.
         """
-        metadata = {
-            "uuid": self.uuid,
-            "steps": self.steps,
-            "equilibration_steps": self.equilibration_steps,
-            "skip_steps": self.skip_steps,
-            "gamma0": self.gamma0,
-            "dt": self.dt,
-            "temperature": self.temperature,
-            "P": self.P,
-            "pdb_file": self.pdb_file,
-            "forcefield_file": self.forcefield_file,
-            "platform_name": self.platform_name,
-            "beta": self.beta,
-            "tau": self.tau
-        }
-        params_to_json(metadata, self.uuid, dir=self.save_dir)
+        params_to_json(self.metadata, dir=self.save_dir)
 
     def _save_results(self):
         """

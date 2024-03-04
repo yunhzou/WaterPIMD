@@ -1,6 +1,7 @@
 import numpy as np
 import os 
 import json
+from utils import params_to_json
 
 
 def errorpropagation(data):
@@ -59,23 +60,35 @@ def calculateError_byBinning(arr):
     standardError = maxError_byBinning(mean, arr, workingNdim - 6)
     return mean, standardError
 
-def estimate_additional_steps():
-    #TODO: implement function that estimate addtional steps required to reduce the error to 1% of the mean value 
-    pass
+def initialize_loader(dir="Result"):
+    params = json.load(open(os.path.join(dir, "params.json")))
+    PE = np.load(os.path.join(dir, "pe.npy"))
+    POS = np.load(os.path.join(dir, "pos.npy"))
+    FORCES = np.load(os.path.join(dir, "forces.npy"))
+    return params, PE, POS, FORCES
 
 class simulation_state():
-    def __init__(self,result_dir="Result"):
+    def __init__(self,
+                 params,
+                 PE,
+                 POS,
+                 FORCES,
+                 result_dir = "Result"):
+        """
+        initialize the simulation state
+
+        Args:
+            params (_type_): metadata of the simulation
+            PE (_type_): shape (simulation_steps, P)
+            POS (_type_): shape (simulation_steps, P, 4, 3)
+            FORCES (_type_): shape (simulation_steps, P, 4, 3)
+            result_dir (str, optional): where results are stored. Defaults to "Result".
+        """
+        self.params = params
+        self.PE = PE
+        self.POS = POS
+        self.FORCES = FORCES
         self.result_dir = result_dir
-        self.path = {
-            "params":os.path.join(result_dir, "params.json"),   
-            "PE":os.path.join(result_dir, "pe.npy"),
-            "POS":os.path.join(result_dir, "pos.npy"),
-            "FORCES":os.path.join(result_dir, "forces.npy")
-            }
-        self.params = json.load(open(self.path["params"]))
-        self.PE = np.load(self.path["PE"]) # shape (simulation_steps, P)
-        self.POS = np.load(self.path["POS"]) # shape (simulation_steps, P, 4, 3)
-        self.FORCES = np.load(self.path["FORCES"])  # shape (simulation_steps, P, 4, 3)
         self.simulation_steps = self.PE.shape[0]
         self.P = self.PE.shape[1]
 
@@ -85,8 +98,7 @@ class simulation_state():
         self.compute_K_virial()
         self.compute_H2O_structure()
         self.compute_E_virial()
-        self.compute_error_bar()
-        self.save()
+        self.compute_error_bar_jz()
         self.print_log()
 
     def save(self):
@@ -147,12 +159,31 @@ class simulation_state():
         self.E_virial = (.5*self.K_virial/self.P+self.pe/self.P)/4.184
         self.E_virial_avg = np.mean(self.E_virial)
 
+    def compute_error_bar_jz(self):
+        std = np.std(self.E_virial)
+        n_independent = self.simulation_steps/2
+        self.error_bar = std/np.sqrt(n_independent)
+        self.error_percent = self.error_bar/self.E_virial_avg*100
+
+
     def compute_error_bar(self):
         _, error_bar = calculateError_byBinning(self.E_virial)
         check_error_percent = error_bar/self.E_virial_avg*100
         self.error_bar = error_bar
         self.error_percent = check_error_percent
 
+    def estimate_additional_steps(self, error_tolerance = 1):
+        target_error = error_tolerance/100*self.E_virial_avg
+        std = np.std(self.E_virial)
+        steps_required = int((std/target_error)**2)
+        additional_steps = steps_required*2 - self.simulation_steps
+        return steps_required
+    
+    def save_metadata(self):
+        """
+        Saves the metadata of the simulation to a JSON file.
+        """
+        params_to_json(self.params, dir=self.save_dir)
 
 
 
