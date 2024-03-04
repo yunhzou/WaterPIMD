@@ -102,6 +102,7 @@ class simulation_state():
         self.print_log()
 
     def save(self):
+        self.save_metadata()
         np.savez(os.path.join(self.result_dir, "result.npz"), 
                  geometry=self.geometry, 
                  E_virial_average= np.array(self.E_virial_avg), 
