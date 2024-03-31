@@ -18,45 +18,72 @@ def plot_PE(potential_arr: np.ndarray, show: bool = True):
     if show:
         plt.show()
 
-def autocorrelation(x):
-    """
-    Compute the autocorrelation of the signal, based on the properties of the
-    power spectral density of the signal.
-    """
-    xp = x - np.mean(x)
-    f = np.fft.fft(xp)
-    p = np.array([np.real(v)**2 + np.imag(v)**2 for v in f])
-    pi = np.fft.ifft(p)
-    return np.real(pi)[:x.size//2] / np.sum(xp**2)
 
-def plot_autocorrelation(potential_arr, show: bool = True):
+def full_autocorrelation(series, show: bool = False):
     """
-    Plot the autocorrelation function of the potential energy array.
+    Compute the autocorrelation of the specified series for all possible lags.
+    This should be the correct one 
 
-    Args:
-        potential_arr: potential energy array of shape (simulation_steps, P)
+    :param series: The time series data.
+    :return: A numpy array containing the autocorrelation values for all lags.
     """
-    # average over beads to shape (simulation_steps,)
-    pe = np.mean(potential_arr, axis=1)
+    #series = np.mean(series, axis=1)
+    N = len(series)
+    # Subtract the mean from the series
+    series_mean_subtracted = series - np.mean(series)
     
-    # normalize the potential energy
-    pe_normalized = pe / np.max(np.abs(pe))
+    # Calculate the autocorrelation using the numpy correlate function
+    autocorrelations = np.correlate(series_mean_subtracted, series_mean_subtracted, mode='full')[N-1:] / N
     
-    # calculate the autocorrelation function
-    acf = autocorrelation(pe_normalized)
-    
-    # plot the autocorrelation function
-    plt.plot(acf)
+    # Normalize the autocorrelations by the zero-lag autocorrelation (which equals the variance)
+    #autocorrelations /= autocorrelations[0]
+
+    plt.plot(autocorrelations)
     plt.xlabel("Lag")
     plt.ylabel("Autocorrelation")
     plt.title("Autocorrelation Function of Potential Energy")
     if show:
         plt.show()
+    return autocorrelations
+
+def find_nearest_half_life(correlation_array):
+    """
+    Find the index of the point in the correlation array that is closest to C(0)/e,
+    where C(0) is the first element of the correlation array and e is the base of the
+    natural logarithm.
+
+    :param correlation_array: The 1D array representing the autocorrelation function.
+    :return: The index of the closest point to C(0)/e.
+    """
+    # Calculate the target value as C(0)/e
+    target_value = correlation_array[0] / np.e
+    
+    # Find the index of the point closest to the target value
+    # We use np.abs to find the absolute difference and argmin to find the index of the minimum value
+    index = (np.abs(correlation_array - target_value)).argmin()
+    
+    return index
+
+def calculate_correlation_time(series):
+    """
+    Compute the correlation time for the given time series data.
+    
+    :param series: The time series data.
+    :return: The correlation time, tau_c.
+    """
+    # Subtract the mean from the series to get δA(t)
+    series = np.mean(series, axis=1)
+    
+    # Calculate the full autocorrelation function
+    autocorrelations = full_autocorrelation(series)
+    
+    # Sum the autocorrelation function values to estimate the integral
+    tau_c = find_nearest_half_life(autocorrelations)
+    
+    return tau_c
 
 if __name__ == "__main__":
     result_dir = r"Result"
     pe = np.load(os.path.join(result_dir, "pe.npy"))
-    #plot_PE(pe, show = False)
-    plot_autocorrelation(pe[:200],show=False)
-    plot_autocorrelation(pe)
+    print(calculate_correlation_time(pe))
 

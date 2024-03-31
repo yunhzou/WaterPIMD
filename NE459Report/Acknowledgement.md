@@ -1,0 +1,1 @@
+I would like to thank Professor [[Pierre-Nicholas Roy]] for being my project supervisor. I would like to thank [[]] to be my second reader. I would also like to thank Prof. [[Youngki Yoon]] for being the course coordinator.

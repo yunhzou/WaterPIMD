@@ -67,6 +67,16 @@ def initialize_loader(dir="Result"):
     FORCES = np.load(os.path.join(dir, "forces.npy"))
     return params, PE, POS, FORCES
 
+def autocorrelation(x):
+    n = len(x)
+    variance = np.var(x)
+    x = x - np.mean(x)
+    r = np.correlate(x, x, mode='full')[-n:]
+    result = r / (variance * (np.arange(n, 0, -1)))
+    return result
+
+
+
 class simulation_state():
     def __init__(self,
                  params,
@@ -91,7 +101,7 @@ class simulation_state():
         self.result_dir = result_dir
         self.simulation_steps = self.PE.shape[0]
         self.P = self.PE.shape[1]
-
+        self.decoorelation_lag = 12
 
     def analyze(self):
         self.compute_PE()
@@ -162,7 +172,7 @@ class simulation_state():
 
     def compute_error_bar_jz(self):
         std = np.std(self.E_virial)
-        n_independent = self.simulation_steps/2
+        n_independent = self.simulation_steps/self.decoorelation_lag
         self.error_bar = std/np.sqrt(n_independent)
         self.error_percent = self.error_bar/self.E_virial_avg*100
 
@@ -177,14 +187,14 @@ class simulation_state():
         target_error = error_tolerance/100*self.E_virial_avg
         std = np.std(self.E_virial)
         steps_required = int((std/target_error)**2)
-        additional_steps = steps_required*2 - self.simulation_steps
-        return steps_required
+        additional_steps = steps_required*self.decoorelation_lag - self.simulation_steps
+        return additional_steps
     
     def save_metadata(self):
         """
         Saves the metadata of the simulation to a JSON file.
         """
-        params_to_json(self.params, dir=self.save_dir)
+        params_to_json(self.params, dir=self.result_dir)
 
 
 
