@@ -12,7 +12,7 @@ def plot_PE(potential_arr: np.ndarray, show: bool = True):
     # average over beads to shape (simulation_steps,)
     pe = np.mean(potential_arr, axis=1)/4.184
     plt.plot(pe)
-    plt.xlabel("Time step")
+    plt.xlabel("Steps")
     plt.ylabel("Potential Energy (kcal/mol)")
     plt.title("Potential Energy vs Time step")
     if show:
@@ -34,10 +34,6 @@ def full_autocorrelation(series, show: bool = False):
     
     # Calculate the autocorrelation using the numpy correlate function
     autocorrelations = np.correlate(series_mean_subtracted, series_mean_subtracted, mode='full')[N-1:] / N
-    
-    # Normalize the autocorrelations by the zero-lag autocorrelation (which equals the variance)
-    #autocorrelations /= autocorrelations[0]
-
     plt.plot(autocorrelations)
     plt.xlabel("Lag")
     plt.ylabel("Autocorrelation")
@@ -75,7 +71,7 @@ def calculate_correlation_time(series):
     series = np.mean(series, axis=1)
     
     # Calculate the full autocorrelation function
-    autocorrelations = full_autocorrelation(series)
+    autocorrelations = full_autocorrelation(series, show = True)
     
     # Sum the autocorrelation function values to estimate the integral
     tau_c = find_nearest_half_life(autocorrelations)
@@ -83,7 +79,9 @@ def calculate_correlation_time(series):
     return tau_c
 
 if __name__ == "__main__":
-    result_dir = r"Result"
+    result_dir = r"Result\archive1"
     pe = np.load(os.path.join(result_dir, "pe.npy"))
-    print(calculate_correlation_time(pe))
+    plt.plot(pe.mean(axis=1))
+    plt.show()
+    #print(calculate_correlation_time(pe))
 

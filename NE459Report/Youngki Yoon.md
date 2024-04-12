@@ -1,1 +1,0 @@
-https://uwaterloo.ca/electrical-computer-engineering/profile/ykyoon

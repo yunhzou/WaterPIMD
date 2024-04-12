@@ -160,7 +160,7 @@ class simulation_state():
         rOH2 = np.linalg.norm(POS[:, :, 0] - POS[:, :, 1], axis=-1)
         rOH1 = np.linalg.norm(POS[:, :, 0] - POS[:, :, 2], axis=-1)
         rHH = np.linalg.norm(POS[:, :, 2] - POS[:, :, 1], axis=-1)
-        vec_OH1 = POS[:, :, 0] - POS[:, :, 2]
+        vec_OH1 = POS[:, :, 0] - POS[:, :, 2]   
         vec_OH2 = POS[:, :, 0] - POS[:, :, 1]
         cos_angle = np.einsum('ijk,ijk->ij', vec_OH1, vec_OH2) / (rOH1 * rOH2)
         angle = np.arccos(np.clip(cos_angle, -1, 1)) * 180. / np.pi

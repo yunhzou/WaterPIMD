@@ -4,11 +4,12 @@
     "type": "split",
     "children": [
       {
-        "id": "afa0a995aa8d13a1",
+        "id": "4a2dbb512285ab9c",
         "type": "tabs",
+        "dimension": 55.81632653061225,
         "children": [
           {
-            "id": "be0bb3467685dafe",
+            "id": "b282bc3c0dfaa54a",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -22,31 +23,23 @@
         ]
       },
       {
-        "id": "4a2dbb512285ab9c",
+        "id": "1221ed6420b87f4d",
         "type": "tabs",
+        "dimension": 44.183673469387756,
         "children": [
           {
-            "id": "e1ae267ef960c027",
-            "type": "leaf",
-            "state": {
-              "type": "graph",
-              "state": {}
-            }
-          },
-          {
-            "id": "6dabbf8bbf071d21",
+            "id": "4a4853b76b38dbad",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Project Requirement.md",
+                "file": "FAIR.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -112,7 +105,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Acknowledgement.md",
+                "file": "FAIR.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -129,7 +122,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Acknowledgement.md",
+                "file": "FAIR.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -152,7 +145,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Acknowledgement.md"
+                "file": "FAIR.md"
               }
             }
           }
@@ -173,18 +166,32 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "be0bb3467685dafe",
+  "active": "4a4853b76b38dbad",
   "lastOpenFiles": [
-    "NE459 Final Report.md",
-    "References.md",
-    "Pierre-Nicholas Roy.md",
     "Introduction.md",
-    "Acknowledgement.md",
-    "Untitled",
+    "NE459 Final Report.md",
+    "PIMD_GS.md",
+    "References.md",
+    "Simulation Results.md",
     "Yunheng Zou.pdf",
     "Summary of the report (Abstract).md",
-    "Youngki Yoon.md",
     "Project Requirement.md",
+    "~WRL2879.tmp",
+    "~WRD2855.tmp",
+    "~WRL1526.tmp",
+    "~WRD1507.tmp",
+    "~WRL0242.tmp",
+    "~WRD0222.tmp",
+    "~WRL3634.tmp",
+    "~WRD3622.tmp",
+    "~WRL1871.tmp",
+    "Acknowledgement.md",
+    "FAIR.md",
+    "Attachments/Pasted image 20240331213931.png",
+    "Attachments/Pasted image 20240331213751.png",
+    "Youngki Yoon.md",
+    "Pierre-Nicholas Roy.md",
+    "Images/velocity_pitch_comp.jpg",
     "Welcome.md"
   ]
 }

@@ -99,7 +99,6 @@ class simulation_run_time():
             "tau": self.tau
         }
 
-
     def _setup_system(self):
         """
         Sets up the simulation system based on the specified parameters.
@@ -109,7 +108,7 @@ class simulation_run_time():
         """
         pdb = app.PDBFile(self.pdb_file)
         forcefield = app.ForceField(self.forcefield_file)
-        system = forcefield.createSystem(pdb.topology, rigidWater=False)
+        system = forcefield.createSystem(pdb.topology, rigidWater=False) 
         integrator = mm.RPMDIntegrator(self.P, self.temperature * unit.kelvin, self.gamma0, self.dt)
         platform = mm.Platform.getPlatformByName(self.platform_name)
         simulation = app.Simulation(pdb.topology, system, integrator, platform)

@@ -1,0 +1,5 @@
+matplotlib==3.5.3
+mdtraj==1.9.7
+numpy==1.21.6
+openmm==7.6.0
+tqdm==4.66.2
